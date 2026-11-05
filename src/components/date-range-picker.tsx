@@ -58,8 +58,21 @@ export function DateRangePicker({
     setOpen(false);
   }
 
+  // react-day-picker treats a click as "move the end of the current range" when the
+  // current selection is already a complete range - which it always is here, since draft
+  // starts out as the committed range. resetOnSelect makes the first click start a fresh
+  // in-progress selection instead, so picking a new "from" doesn't immediately commit a
+  // (wrong) complete range. Resetting the draft on open also clears any single-ended
+  // selection left over from a popover closed without completing a pick.
+  function handleOpenChange(next: boolean) {
+    setOpen(next);
+    if (next) {
+      setDraft({ from: labelToDate(from), to: labelToDate(to) });
+    }
+  }
+
   return (
-    <Popover open={open} onOpenChange={setOpen}>
+    <Popover open={open} onOpenChange={handleOpenChange}>
       <PopoverTrigger render={<Button variant="outline" size="sm" />}>
         <CalendarIcon />
         {from} to {to}
@@ -68,6 +81,7 @@ export function DateRangePicker({
         <Calendar
           mode="range"
           numberOfMonths={2}
+          resetOnSelect
           defaultMonth={draft?.from}
           selected={draft}
           onSelect={handleSelect}
