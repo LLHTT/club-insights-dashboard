@@ -49,7 +49,7 @@ export function KpiCard({
           <span
             className={cn(
               "text-xs",
-              sentiment === "good" && "text-emerald-600",
+              sentiment === "good" && "text-primary",
               sentiment === "bad" && "text-destructive",
               sentiment === "neutral" && "text-muted-foreground",
             )}
