@@ -12,6 +12,7 @@ export function KpiCard({
   metric,
   footnote,
   goodDirection = "up",
+  onViewDetails,
 }: {
   label: string;
   metric: MetricValue;
@@ -19,6 +20,9 @@ export function KpiCard({
   /** Whether a rising value is good news or bad news - no-shows going up is bad, unlike
    *  active players or sessions held. Controls the trend color, not the sign shown. */
   goodDirection?: "up" | "down";
+  /** FR4: click the number to see what's behind it. Omit to render a plain, non-interactive
+   *  number (e.g. while the drill-down list can't be fetched yet). */
+  onViewDetails?: () => void;
 }) {
   const sentiment = trendSentiment(metric, goodDirection);
 
@@ -31,7 +35,17 @@ export function KpiCard({
       </CardHeader>
       <CardContent className="flex flex-col gap-1.5">
         <div className="flex items-baseline gap-2">
-          <span className="text-2xl font-semibold">{metric.value}</span>
+          {onViewDetails ? (
+            <button
+              type="button"
+              onClick={onViewDetails}
+              className="text-2xl font-semibold underline-offset-4 hover:underline"
+            >
+              {metric.value}
+            </button>
+          ) : (
+            <span className="text-2xl font-semibold">{metric.value}</span>
+          )}
           <span
             className={cn(
               "text-xs",

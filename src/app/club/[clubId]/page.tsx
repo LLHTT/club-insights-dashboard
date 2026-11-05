@@ -46,8 +46,6 @@ export default async function ClubPage({
         <MetricToggle metric={metric} />
         <WeeklyChart clubId={clubId} metric={metric} from={from} to={to} />
       </div>
-
-      <p className="text-muted-foreground text-sm">Drill-downs coming soon.</p>
     </main>
   );
 }
