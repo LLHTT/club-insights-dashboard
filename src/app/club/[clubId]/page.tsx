@@ -1,14 +1,5 @@
 import { defaultRangeLabels, NOW, type DateLabel } from "@/lib/metrics/time";
-import type { MetricName } from "@/lib/metrics/definitions";
-
-const METRIC_NAMES: MetricName[] = ["activePlayers", "sessionsHeld", "noShows"];
-
-function parseMetric(value: string | string[] | undefined): MetricName {
-  if (typeof value === "string" && (METRIC_NAMES as string[]).includes(value)) {
-    return value as MetricName;
-  }
-  return "activePlayers";
-}
+import { ClubSummary } from "@/components/club-summary";
 
 function parseDateLabel(
   value: string | string[] | undefined,
@@ -29,16 +20,18 @@ export default async function ClubPage({
   const defaults = defaultRangeLabels(NOW);
   const from = parseDateLabel(query.from) ?? defaults.from;
   const to = parseDateLabel(query.to) ?? defaults.to;
-  const metric = parseMetric(query.metric);
 
   return (
-    <main className="flex flex-1 flex-col gap-2 p-6">
-      <p className="text-sm">
-        Showing <span className="font-medium">{clubId}</span>, {from} to {to},
-        metric: {metric}
-      </p>
+    <main className="flex flex-1 flex-col gap-6 p-6">
+      <div className="flex flex-col gap-1">
+        <h1 className="text-lg font-semibold">Overview</h1>
+        <p className="text-muted-foreground text-sm">
+          {from} to {to}
+        </p>
+      </div>
+      <ClubSummary clubId={clubId} from={from} to={to} />
       <p className="text-muted-foreground text-sm">
-        Dashboard content coming soon.
+        Weekly chart and drill-downs coming soon.
       </p>
     </main>
   );
