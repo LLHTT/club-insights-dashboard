@@ -8,11 +8,15 @@ import {
   getAllClubs,
   getClubSessions,
   getClubBookings,
+  getClubPlayers,
 } from "./repository";
 import { resolveRange, previousRangeLabels, NOW, type DateLabel } from "./time";
 import {
   computePeriodSummary,
   computeWeeklySeries,
+  sessionsHeldInRange,
+  activePlayerIdsInRange,
+  noShowsInRange,
   type PeriodSummary,
   type WeeklyPoint,
   type MetricName,
@@ -108,3 +112,113 @@ export {
   ACTIVE_PLAYERS_DEFINITION,
   NO_SHOWS_DEFINITION,
 } from "./definitions";
+
+// Drill-down rows behind each of the three numbers (FR4). Each re-runs the same
+// definitions.ts predicates the summary uses, so a session, player, or no-show that
+// appears in a drill-down list is guaranteed to be one of the ones counted above.
+
+export interface SessionSummary {
+  sessionId: string;
+  title: string;
+  startsAt: string;
+  attendanceRecorded: boolean;
+}
+
+export function getSessionsHeldDrilldown(
+  clubId: string,
+  from: DateLabel,
+  to: DateLabel,
+): SessionSummary[] | null {
+  const club = getClub(clubId);
+  if (!club) return null;
+
+  const range = resolveRange(from, to, club.time_zone);
+  const held = sessionsHeldInRange(getClubSessions(clubId), range, NOW);
+
+  return held
+    .map((s) => ({
+      sessionId: s.session_id,
+      title: s.title,
+      startsAt: s.starts_at,
+      attendanceRecorded: s.attendance_recorded === 1,
+    }))
+    .sort((a, b) => a.startsAt.localeCompare(b.startsAt));
+}
+
+export interface PlayerSummary {
+  playerId: string;
+  name: string;
+}
+
+export function getActivePlayersDrilldown(
+  clubId: string,
+  from: DateLabel,
+  to: DateLabel,
+): PlayerSummary[] | null {
+  const club = getClub(clubId);
+  if (!club) return null;
+
+  const range = resolveRange(from, to, club.time_zone);
+  const playerIds = activePlayerIdsInRange(
+    getClubSessions(clubId),
+    getClubBookings(clubId),
+    range,
+    NOW,
+  );
+  const nameById = new Map(
+    getClubPlayers(clubId).map((p) => [p.player_id, p.name]),
+  );
+
+  return Array.from(playerIds)
+    .map((playerId) => ({
+      playerId,
+      name: nameById.get(playerId) ?? "Unknown player",
+    }))
+    .sort((a, b) => a.name.localeCompare(b.name));
+}
+
+export interface NoShowSummary {
+  bookingId: string;
+  sessionId: string;
+  sessionTitle: string;
+  startsAt: string;
+  playerId: string;
+  playerName: string;
+}
+
+export function getNoShowsDrilldown(
+  clubId: string,
+  from: DateLabel,
+  to: DateLabel,
+): NoShowSummary[] | null {
+  const club = getClub(clubId);
+  if (!club) return null;
+
+  const sessions = getClubSessions(clubId);
+  const range = resolveRange(from, to, club.time_zone);
+  const { noShowBookings } = noShowsInRange(
+    sessions,
+    getClubBookings(clubId),
+    range,
+    NOW,
+  );
+
+  const sessionById = new Map(sessions.map((s) => [s.session_id, s]));
+  const nameById = new Map(
+    getClubPlayers(clubId).map((p) => [p.player_id, p.name]),
+  );
+
+  return noShowBookings
+    .map((b) => {
+      const session = sessionById.get(b.session_id);
+      return {
+        bookingId: b.booking_id,
+        sessionId: b.session_id,
+        sessionTitle: session?.title ?? "Unknown session",
+        startsAt: session?.starts_at ?? "",
+        playerId: b.player_id,
+        playerName: nameById.get(b.player_id) ?? "Unknown player",
+      };
+    })
+    .sort((a, b) => a.startsAt.localeCompare(b.startsAt));
+}
