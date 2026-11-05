@@ -69,6 +69,30 @@ The dataset is static, and "now" is pinned to Mon 5 Oct 2026, 09:00 ICT
 Full reasoning for all of this, including the rendering/state/caching strategy, the
 component layering, and the full API contract, is in `docs/SYSTEM_DESIGN.md`.
 
+## Where the brief was silent
+
+There's no stakeholder to confirm these against, so these are calls made and flagged rather
+than requirements anyone signed off on:
+
+- **Default date range.** With no range in the URL yet, the dashboard shows the 4 weeks up to
+  and including yesterday (`defaultRangeLabels` in `src/lib/metrics/time.ts`).
+- **Malformed input returns a 400 with a fixed error shape**
+  (`{ "error": { "code", "message" } }`), never a 500 or a query that silently does the wrong
+  thing. An unknown club returns 404 in the same shape.
+- **An unexpected render error shows a plain fallback with a retry button**
+  (`src/app/club/[clubId]/error.tsx`), not a stack trace, the same way API errors are already
+  handled per-component.
+- **Target browsers**: current Chrome/Firefox/Safari. Nothing in the brief says otherwise, and
+  there's no reason to assume a wider range for an internal tool.
+- **The three numbers, the chart, and the drill-down lists must agree with each other.** This
+  isn't stated anywhere, but it's the whole point of the brief's "trust" framing: a drill-down
+  row that appears in a list but isn't one of the ones counted above would undermine that. It's
+  the reason `src/lib/metrics` exists as a single service layer instead of each route handler
+  (or each component) re-deriving "active player" on its own.
+- **Visual design.** The brief doesn't ask for a particular look. Pulled the green-on-white
+  theme from reclub's own site rather than leaving the generic grayscale shadcn default in
+  place.
+
 ## What's not built
 
 - Auth - the brief says no login.
@@ -79,3 +103,26 @@ component layering, and the full API contract, is in `docs/SYSTEM_DESIGN.md`.
 - Multi-timezone handling beyond what's needed - both clubs in the dataset are
   `Asia/Ho_Chi_Minh`. The code reads each club's own `time_zone` column rather than
   hardcoding it, so it isn't locked to one zone, but it's only ever tested against this one.
+
+## What I'd do next
+
+- **An E2E/visual pass (Playwright) on the interactive pieces** - the date range picker, the
+  metric toggle, and the drill-down sheets. I verified these against the running dev server's
+  own logs and by tracing the exact library code paths involved, but without browser access in
+  this environment I couldn't click through them myself, which is the honest gap in this
+  submission's testing.
+- **A dark mode toggle.** The CSS variables already have a dark variant defined
+  (`src/app/globals.css`), left over from the shadcn scaffold and updated to match the new
+  theme, but nothing in the UI switches the `.dark` class on yet.
+- **Real auth**, scoping each query to the clubs the caller can access. Every route already
+  takes `clubId` as an explicit parameter, so this is a check added at the top of each
+  handler, not a rewrite.
+- **CORS and rate limiting**, needed once an actual mobile client calls this API from a
+  different origin. No meaningful answer to either in a local take-home.
+- **Swap SQLite for Postgres** if concurrent writers become a real constraint - the
+  service-layer boundary (`src/lib/metrics`) means that's a change in one module, not every
+  route handler.
+- **Pre-aggregated weekly rollups** instead of scanning raw bookings per request, once the
+  dataset is large enough that in-memory filtering stops being effectively free. At ~2,000
+  rows total it isn't worth building yet.
+- **Pagination/virtualization on drill-down lists**, once they'd exceed a full render.
