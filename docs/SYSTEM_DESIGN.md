@@ -83,14 +83,14 @@ are sums over the same query, not two separate re-derivations of "active players
 
 ### 2.3 Rendering
 
-| Option | Rejected because |
-|---|---|
-| Fully client-rendered SPA | Blank page, then JS boot, then fetch, then paint - slower first paint for no real benefit here. |
-| Fully server-rendered, full reload per interaction | Changing the date range would mean a page navigation. |
+| Option                                             | Rejected because                                                                                |
+| -------------------------------------------------- | ----------------------------------------------------------------------------------------------- |
+| Fully client-rendered SPA                          | Blank page, then JS boot, then fetch, then paint - slower first paint for no real benefit here. |
+| Fully server-rendered, full reload per interaction | Changing the date range would mean a page navigation.                                           |
 
 Chosen: server-rendered shell for fast first paint, with the date range, chart toggle, and
 drill-down as client components that fetch from the JSON API and own their loading/error state.
-This also matches the brief's constraint directly - those client components *are* the API's client.
+This also matches the brief's constraint directly - those client components _are_ the API's client.
 
 ### 2.4 Component layering
 
@@ -104,11 +104,11 @@ This also matches the brief's constraint directly - those client components *are
 
 ### 2.5 State
 
-| State | Lives in | Why |
-|---|---|---|
-| Club id, date range, chart metric | URL (`searchParams`) | Defines the view; needs to survive refresh and be shareable. |
-| Fetched summary/weekly/drill-down data | TanStack Query cache, keyed by `[clubId, from, to, metric]` | Server state, not app state - get dedupe, cancellation on rapid date changes, and loading/error states without hand-rolled `useEffect`. |
-| Drill-down panel open, date-picker popover open | Local `useState` | Ephemeral, doesn't need to survive navigation. |
+| State                                           | Lives in                                                    | Why                                                                                                                                     |
+| ----------------------------------------------- | ----------------------------------------------------------- | --------------------------------------------------------------------------------------------------------------------------------------- |
+| Club id, date range, chart metric               | URL (`searchParams`)                                        | Defines the view; needs to survive refresh and be shareable.                                                                            |
+| Fetched summary/weekly/drill-down data          | TanStack Query cache, keyed by `[clubId, from, to, metric]` | Server state, not app state - get dedupe, cancellation on rapid date changes, and loading/error states without hand-rolled `useEffect`. |
+| Drill-down panel open, date-picker popover open | Local `useState`                                            | Ephemeral, doesn't need to survive navigation.                                                                                          |
 
 No global store (Redux/Zustand) - nothing here is state that isn't either URL-derived or a cache of
 server data.
@@ -144,13 +144,13 @@ No login means the API is the whole perimeter:
 Current data (~195 sessions, ~1,900 bookings) doesn't need any of this. What would actually break,
 and the fix, without building it now:
 
-| Dimension | Breaks at | Fix |
-|---|---|---|
-| Rows per club | Millions of bookings | Index on `(club_id, starts_at)`; pre-aggregated weekly rollups instead of scanning raw bookings per request. |
-| Number of clubs | Hundreds | Club switcher becomes a searchable list; club scoping becomes a real auth boundary. |
-| Drill-down list size | Thousands of rows in range | Pagination/virtualization - currently a full render since the real list tops out around 195. |
-| Concurrent writers | Many hosts booking simultaneously | SQLite is a brief constraint here; production would move to Postgres. The service-layer boundary (§2.2) means that's a swap in one module, not every route handler. |
-| Request volume | Many concurrent hosts | Route handlers are already stateless, scale horizontally. SQLite (single writer) is the actual bottleneck - same Postgres point above. |
+| Dimension            | Breaks at                         | Fix                                                                                                                                                                 |
+| -------------------- | --------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| Rows per club        | Millions of bookings              | Index on `(club_id, starts_at)`; pre-aggregated weekly rollups instead of scanning raw bookings per request.                                                        |
+| Number of clubs      | Hundreds                          | Club switcher becomes a searchable list; club scoping becomes a real auth boundary.                                                                                 |
+| Drill-down list size | Thousands of rows in range        | Pagination/virtualization - currently a full render since the real list tops out around 195.                                                                        |
+| Concurrent writers   | Many hosts booking simultaneously | SQLite is a brief constraint here; production would move to Postgres. The service-layer boundary (§2.2) means that's a swap in one module, not every route handler. |
+| Request volume       | Many concurrent hosts             | Route handlers are already stateless, scale horizontally. SQLite (single writer) is the actual bottleneck - same Postgres point above.                              |
 
 ---
 
