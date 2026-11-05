@@ -49,9 +49,9 @@
 }
 
 :root {
-  /* Warm cream/green theme, matching reclub's own site - a club host should recognize the
-     dashboard as theirs, not a generic admin tool. */
-  --background: oklch(0.97 0.025 85);
+  /* Green theme matching reclub's own site, with a plain white page background rather than
+     the cream reclub itself uses - color lives in the cards, chart, and buttons instead. */
+  --background: oklch(1 0 0);
   --foreground: oklch(0.22 0.02 60);
   --card: oklch(1 0 0);
   --card-foreground: oklch(0.22 0.02 60);
@@ -75,7 +75,7 @@
   --chart-4: oklch(0.75 0.06 85);
   --chart-5: oklch(0.42 0.11 142);
   --radius: 0.625rem;
-  --sidebar: oklch(0.97 0.025 85);
+  --sidebar: oklch(1 0 0);
   --sidebar-foreground: oklch(0.22 0.02 60);
   --sidebar-primary: oklch(0.58 0.14 142);
   --sidebar-primary-foreground: oklch(0.99 0 0);
