@@ -6,9 +6,12 @@
     "node": ">=20.9.0"
   },
   "scripts": {
+    "predev": "npm run seed",
     "dev": "next dev",
     "build": "next build",
+    "prestart": "npm run seed",
     "start": "next start",
+    "seed": "tsx scripts/seed.ts",
     "lint": "eslint",
     "format": "prettier --write .",
     "format:check": "prettier --check .",
