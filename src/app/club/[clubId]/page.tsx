@@ -33,7 +33,7 @@ export default async function ClubPage({
   const metric = parseMetric(query.metric);
 
   return (
-    <main className="flex flex-1 flex-col gap-6 p-6">
+    <main className="mx-auto flex w-full max-w-5xl flex-1 flex-col gap-6 p-4 sm:p-6">
       <div className="flex flex-wrap items-center justify-between gap-3">
         <h1 className="text-lg font-semibold">Overview</h1>
         <DateRangePicker key={`${from}_${to}`} from={from} to={to} />

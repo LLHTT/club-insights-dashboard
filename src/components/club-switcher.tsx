@@ -4,6 +4,7 @@ import Link from "next/link";
 import { useQuery } from "@tanstack/react-query";
 import { fetchClubs } from "@/lib/api-client";
 import { buttonVariants } from "@/components/ui/button";
+import { Skeleton } from "@/components/ui/skeleton";
 import { cn } from "@/lib/utils";
 
 export function ClubSwitcher({ activeClubId }: { activeClubId: string }) {
@@ -14,7 +15,10 @@ export function ClubSwitcher({ activeClubId }: { activeClubId: string }) {
 
   if (isPending) {
     return (
-      <span className="text-muted-foreground text-sm">Loading clubs...</span>
+      <div className="flex gap-1.5">
+        <Skeleton className="h-7 w-28" />
+        <Skeleton className="h-7 w-28" />
+      </div>
     );
   }
 

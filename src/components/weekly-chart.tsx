@@ -14,11 +14,19 @@ import {
   YAxis,
 } from "recharts";
 import { useQuery } from "@tanstack/react-query";
+import { format } from "date-fns";
 import { fetchWeekly, ApiClientError } from "@/lib/api-client";
 import type { DateLabel } from "@/lib/metrics/time";
 import type { MetricName } from "@/lib/metrics/definitions";
 import { Skeleton } from "@/components/ui/skeleton";
 import { METRIC_LABELS } from "@/lib/metric-labels";
+
+// Display-only formatting of a "YYYY-MM-DD" label - parsed as a naive local date, same as
+// date-range-picker.tsx, since there's no timezone conversion needed to just show the label.
+function formatWeekLabel(label: DateLabel): string {
+  const [y, m, d] = label.split("-").map(Number);
+  return format(new Date(y, m - 1, d), "MMM d");
+}
 
 export function WeeklyChart({
   clubId,
@@ -67,6 +75,7 @@ export function WeeklyChart({
           <CartesianGrid strokeDasharray="3 3" vertical={false} />
           <XAxis
             dataKey="weekStart"
+            tickFormatter={formatWeekLabel}
             tickLine={false}
             axisLine={false}
             fontSize={12}
@@ -80,7 +89,9 @@ export function WeeklyChart({
           />
           <Tooltip
             formatter={(value) => [`${value}`, METRIC_LABELS[metric]]}
-            labelFormatter={(label) => `Week of ${label}`}
+            labelFormatter={(label) =>
+              `Week of ${formatWeekLabel(label as DateLabel)}`
+            }
           />
           <Bar dataKey="value" fill="var(--primary)" radius={4} />
         </BarChart>

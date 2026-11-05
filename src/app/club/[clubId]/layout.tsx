@@ -11,9 +11,11 @@ export default async function ClubLayout({
 
   return (
     <div className="flex min-h-screen flex-col">
-      <header className="flex items-center justify-between border-b px-6 py-3">
-        <span className="text-sm font-medium">Club Insights</span>
-        <ClubSwitcher activeClubId={clubId} />
+      <header className="border-b px-4 py-3 sm:px-6">
+        <div className="mx-auto flex w-full max-w-5xl flex-wrap items-center justify-between gap-2">
+          <span className="text-sm font-medium">Club Insights</span>
+          <ClubSwitcher activeClubId={clubId} />
+        </div>
       </header>
       {children}
     </div>
