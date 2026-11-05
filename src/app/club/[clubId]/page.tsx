@@ -1,5 +1,6 @@
 import { defaultRangeLabels, NOW, type DateLabel } from "@/lib/metrics/time";
 import { ClubSummary } from "@/components/club-summary";
+import { DateRangePicker } from "@/components/date-range-picker";
 
 function parseDateLabel(
   value: string | string[] | undefined,
@@ -23,11 +24,9 @@ export default async function ClubPage({
 
   return (
     <main className="flex flex-1 flex-col gap-6 p-6">
-      <div className="flex flex-col gap-1">
+      <div className="flex flex-wrap items-center justify-between gap-3">
         <h1 className="text-lg font-semibold">Overview</h1>
-        <p className="text-muted-foreground text-sm">
-          {from} to {to}
-        </p>
+        <DateRangePicker key={`${from}_${to}`} from={from} to={to} />
       </div>
       <ClubSummary clubId={clubId} from={from} to={to} />
       <p className="text-muted-foreground text-sm">
