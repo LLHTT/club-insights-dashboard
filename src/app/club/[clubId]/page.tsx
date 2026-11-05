@@ -1,9 +1,7 @@
 import { defaultRangeLabels, NOW, type DateLabel } from "@/lib/metrics/time";
 import type { MetricName } from "@/lib/metrics/definitions";
-import { ClubSummary } from "@/components/club-summary";
 import { DateRangePicker } from "@/components/date-range-picker";
-import { MetricToggle } from "@/components/metric-toggle";
-import { WeeklyChart } from "@/components/weekly-chart";
+import { ClubDashboard } from "@/components/club-dashboard";
 import { METRIC_NAMES } from "@/lib/metric-labels";
 
 function parseDateLabel(
@@ -40,12 +38,7 @@ export default async function ClubPage({
         <h1 className="text-lg font-semibold">Overview</h1>
         <DateRangePicker key={`${from}_${to}`} from={from} to={to} />
       </div>
-      <ClubSummary clubId={clubId} from={from} to={to} />
-
-      <div className="flex flex-col gap-3">
-        <MetricToggle metric={metric} />
-        <WeeklyChart clubId={clubId} metric={metric} from={from} to={to} />
-      </div>
+      <ClubDashboard clubId={clubId} from={from} to={to} metric={metric} />
     </main>
   );
 }
