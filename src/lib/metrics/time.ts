@@ -58,6 +58,18 @@ export function resolveRange(
   return { startUtc, endUtc };
 }
 
+/**
+ * A sensible initial date range for the dashboard: the 4 weeks up to and including
+ * yesterday, before any host picks their own range. Uses the UTC calendar day rather than
+ * a club's local day - this is a UI convenience, not a reported number, so it doesn't need
+ * a club's time zone to compute.
+ */
+export function defaultRangeLabels(now: Date): RangeLabels {
+  const to = formatLabel(new Date(now.getTime() - 24 * 60 * 60 * 1000));
+  const from = addDaysToLabel(to, -27);
+  return { from, to };
+}
+
 /** The equal-length period immediately before [from, to], as calendar labels (no gap). */
 export function previousRangeLabels(
   from: DateLabel,

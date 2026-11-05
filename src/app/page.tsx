@@ -1,9 +1,7 @@
+import { redirect } from "next/navigation";
+
+// No "all clubs" landing screen is called for in the brief - land on the club that
+// actually has data (FR1 still lets the host switch to the other one from there).
 export default function Home() {
-  return (
-    <main className="flex min-h-screen items-center justify-center">
-      <p className="text-muted-foreground text-sm">
-        Club Insights - dashboard under construction.
-      </p>
-    </main>
-  );
+  redirect("/club/club-001");
 }
